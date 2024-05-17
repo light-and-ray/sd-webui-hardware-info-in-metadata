@@ -10,7 +10,7 @@ def getHardwareInfo():
                         'amd', 'vega', 'ryzen', 'radeon', 'intel', 'core', 'arc')
 
     def replace(string, old, new):
-        compiled = re.compile(old, re.IGNORECASE) 
+        compiled = re.compile(old, re.IGNORECASE)
         res = compiled.sub(new, string)
         return str(res)
 
@@ -33,11 +33,11 @@ def getHardwareInfo():
 HARDWARE_INFO = getHardwareInfo()
 
 
-class Script(modules.scripts.Script):   
+class Script(modules.scripts.Script):
     def __init__(self):
         self.start = None
         self.generated = 0
-        
+
     def title(self):
         return "Hardware Info in metadata"
 
@@ -46,7 +46,7 @@ class Script(modules.scripts.Script):
 
     def ui(self, is_img2img):
         return []
- 
+
     def before_process_batch(self, *args, **kwargs):
         self.start = time.perf_counter()
 

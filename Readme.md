@@ -5,3 +5,11 @@ Adds hardware info (gpu name, vram, cpu name, ram) and taken time into generated
 ![](/img/img1.jpg)
 
 In future you can see which ancient PC you used and what they were capable of 🫠
+
+<details>
+<summary>Generate button in screenshot:</summary>
+
+- [SD Webui Moar Generate](https://github.com/Haoming02/sd-webui-moar-generate)
+- [Gray-violet primary color](https://github.com/light-and-ray/sd-webui-gray-violet-primary-color)
+
+</details>
