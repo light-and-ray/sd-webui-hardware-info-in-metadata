@@ -1,8 +1,7 @@
 import gradio as gr
 import torch, cpuinfo, re, psutil, time
 from modules.processing import StableDiffusionProcessing, Processed
-from modules import errors, scripts
-
+from modules import errors, scripts, script_callbacks
 
 
 def makeHardwareInfo():
@@ -29,23 +28,25 @@ def makeHardwareInfo():
     return hardwareInfo
 
 
-
 try:
     HARDWARE_INFO = makeHardwareInfo()
-except Exception as e:
+    CURRENT_GPU = HARDWARE_INFO.split(',')[0]
+except Exception:
     errors.report("Can't make hardware info for metadata", exc_info=True)
-    HARDWARE_INFO = "unknown"
+    HARDWARE_INFO = CURRENT_GPU = "unknown"
 
 
-def replaceUsersGPU(newHardware: str):
+def replaceUsersGPU(infotext: str, params: dict):
     try:
-        newGPU = newHardware.split(',')[0]
-        oldGPU = HARDWARE_INFO.split(',')[0]
-        if oldGPU != newGPU and "unknown" not in (newGPU, oldGPU):
-            gr.Info(f'Your graphics card {oldGPU} has been replaced with {newGPU}')
-    except:
+        if newHardware := params.get('Hardware Info'):
+            infoGPU = newHardware.split(',')[0]
+            if CURRENT_GPU != infoGPU and "unknown" not in (infoGPU, CURRENT_GPU):
+                gr.Info(f'Your graphics card {infoGPU} has been replaced with {CURRENT_GPU}')
+    except Exception:
         pass
-    return ""
+
+
+script_callbacks.on_infotext_pasted(replaceUsersGPU)
 
 
 class Script(scripts.Script):
@@ -59,19 +60,8 @@ class Script(scripts.Script):
     def show(self, is_img2img):
         return scripts.AlwaysVisible
 
-    def ui(self, is_img2img):
-        funnyTextbox = gr.Textbox(visible=False)
-        def get_infotext(d):
-            if "Hardware Info" in d:
-                return d["Hardware Info"]
-        self.infotext_fields = [
-            (funnyTextbox, lambda d: replaceUsersGPU(get_infotext(d)))
-        ]
-        return []
-
     def before_process_batch(self, *args, **kwargs):
         self.start = time.perf_counter()
-
 
     def getElapsedTime(self, p: StableDiffusionProcessing):
         elapsed = time.perf_counter() - self.start
@@ -84,9 +74,7 @@ class Script(scripts.Script):
             self.start = time.perf_counter()
         return elapsed_text
 
-
     def postprocess_image(self, p: StableDiffusionProcessing, processed: Processed):
         self.generated += 1
         p.extra_generation_params["Hardware Info"] = HARDWARE_INFO
         p.extra_generation_params["Time taken"] = self.getElapsedTime(p)
-
