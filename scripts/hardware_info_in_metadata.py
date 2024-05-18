@@ -1,11 +1,10 @@
-import modules.ui
-import modules
 import torch, cpuinfo, re, psutil, time
 from modules.processing import StableDiffusionProcessing, Processed
+from modules import errors, scripts
 
 
 
-def getHardwareInfo():
+def makeHardwareInfo():
     FORBIDDEN_WORDS = ('nvidia', 'geforce', '(r)', '(tm)', '(c)', 'cpu', 'gpu', '@',
                         'amd', 'vega', 'ryzen', 'radeon', 'intel', 'core', 'arc')
 
@@ -30,10 +29,15 @@ def getHardwareInfo():
 
 
 
-HARDWARE_INFO = getHardwareInfo()
+try:
+    HARDWARE_INFO = makeHardwareInfo()
+except Exception as e:
+    errors.report("Can't make hardware info for metadata", exc_info=True)
+    HARDWARE_INFO = "unknown"
 
 
-class Script(modules.scripts.Script):
+
+class Script(scripts.Script):
     def __init__(self):
         self.start = None
         self.generated = 0
@@ -42,7 +46,7 @@ class Script(modules.scripts.Script):
         return "Hardware Info in metadata"
 
     def show(self, is_img2img):
-        return modules.scripts.AlwaysVisible
+        return scripts.AlwaysVisible
 
     def ui(self, is_img2img):
         return []
