@@ -1,3 +1,4 @@
+import gradio as gr
 import torch, cpuinfo, re, psutil, time
 from modules.processing import StableDiffusionProcessing, Processed
 from modules import errors, scripts
@@ -36,6 +37,16 @@ except Exception as e:
     HARDWARE_INFO = "unknown"
 
 
+def replaceUsersGPU(newHardware: str):
+    try:
+        newGPU = newHardware.split(',')[0]
+        oldGPU = HARDWARE_INFO.split(',')[0]
+        if oldGPU != newGPU:
+            gr.Info(f'Your graphics card {oldGPU} has been replaced with {newGPU}')
+    except:
+        pass
+    return ""
+
 
 class Script(scripts.Script):
     def __init__(self):
@@ -49,6 +60,13 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def ui(self, is_img2img):
+        funnyTextbox = gr.Textbox(visible=False)
+        def get_infotext(d):
+            if "Hardware Info" in d:
+                return d["Hardware Info"]
+        self.infotext_fields = [
+            (funnyTextbox, lambda d: replaceUsersGPU(get_infotext(d)))
+        ]
         return []
 
     def before_process_batch(self, *args, **kwargs):
@@ -69,6 +87,6 @@ class Script(scripts.Script):
 
     def postprocess_image(self, p: StableDiffusionProcessing, processed: Processed):
         self.generated += 1
-        p.extra_generation_params['Hardware Info'] = HARDWARE_INFO
+        p.extra_generation_params["Hardware Info"] = HARDWARE_INFO
         p.extra_generation_params["Time taken"] = self.getElapsedTime(p)
 
