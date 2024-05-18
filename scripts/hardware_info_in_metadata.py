@@ -41,7 +41,7 @@ def replaceUsersGPU(newHardware: str):
     try:
         newGPU = newHardware.split(',')[0]
         oldGPU = HARDWARE_INFO.split(',')[0]
-        if oldGPU != newGPU:
+        if oldGPU != newGPU and "unknown" not in (newGPU, oldGPU):
             gr.Info(f'Your graphics card {oldGPU} has been replaced with {newGPU}')
     except:
         pass
