@@ -30,18 +30,23 @@ def makeHardwareInfo():
 
 try:
     HARDWARE_INFO = makeHardwareInfo()
-    CURRENT_GPU = HARDWARE_INFO.split(',')[0]
+    OLD_GPU = HARDWARE_INFO.split(',')[0]
 except Exception:
     errors.report("Can't make hardware info for metadata", exc_info=True)
-    HARDWARE_INFO = CURRENT_GPU = "unknown"
+    HARDWARE_INFO = OLD_GPU = "unknown"
 
+
+replacedGpusTimes = 0
 
 def replaceUsersGPU(infotext: str, params: dict):
     try:
         if newHardware := params.get('Hardware Info'):
-            infoGPU = newHardware.split(',')[0]
-            if CURRENT_GPU != infoGPU and "unknown" not in (infoGPU, CURRENT_GPU):
-                gr.Info(f'Your graphics card {infoGPU} has been replaced with {CURRENT_GPU}')
+            newGpu = newHardware.split(',')[0]
+            if OLD_GPU != newGpu and "unknown" not in (newGpu, OLD_GPU):
+                global replacedGpusTimes
+                replacedGpusTimes += 1
+                if replacedGpusTimes <= 2:
+                    gr.Info(f'Your graphics card {OLD_GPU} has been replaced with {newGpu}')
     except Exception:
         pass
 
