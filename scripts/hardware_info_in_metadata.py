@@ -57,7 +57,7 @@ script_callbacks.on_infotext_pasted(replaceUsersGPU)
 class Script(scripts.Script):
     def __init__(self):
         self.start = None
-        self.generated = 0
+        self.generated = None
 
     def title(self):
         return "Hardware Info in metadata"
@@ -67,9 +67,11 @@ class Script(scripts.Script):
 
     def before_process_batch(self, *args, **kwargs):
         self.start = time.perf_counter()
+        self.generated = 0
 
     def getElapsedTime(self, p: StableDiffusionProcessing):
         elapsed = time.perf_counter() - self.start
+        elapsed /= p.batch_size
         elapsed_m = int(elapsed // 60)
         elapsed_s = elapsed % 60
         elapsed_text = f"{elapsed_s:.1f} sec."
