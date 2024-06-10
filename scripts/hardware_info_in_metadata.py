@@ -26,7 +26,7 @@ def makeHardwareInfo():
     hardwareInfo = replace(hardwareInfo, r'\d+th', '')
     hardwareInfo = replace(hardwareInfo, r'\d+\.\d+ghz', '')
     hardwareInfo = replace(hardwareInfo, r'\s+', ' ').strip()
-    hardwareInfo = replace(hardwareInfo, r'\s,', ' ')
+    hardwareInfo = replace(hardwareInfo, r'\s,', ',')
 
     return hardwareInfo
 
