@@ -6,6 +6,8 @@ Adds hardware info (gpu name, vram, cpu name, ram) and taken time into generated
 
 In future you can see which ancient PC you used and what they were capable of 🫠
 
+*If someone has problem with your hardware info string, or it doesn't work with your GPU brand, please let me know about it in the issue section*
+
 <details>
 <summary>Generate button in the screenshot</summary>
 
