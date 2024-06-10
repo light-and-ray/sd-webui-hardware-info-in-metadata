@@ -5,7 +5,7 @@ from modules import errors, scripts, script_callbacks
 
 
 def makeHardwareInfo():
-    FORBIDDEN_WORDS = ('nvidia', 'geforce', '(r)', '(tm)', '(c)', 'cpu', 'gpu', '@',
+    FORBIDDEN_WORDS = ('nvidia', 'geforce', '(r)', '(tm)', '(c)', 'cpu', 'gpu', '@', 'gen',
                         'amd', 'vega', 'ryzen', 'radeon', 'intel', 'core', 'arc')
 
     def replace(string, old, new):
@@ -23,6 +23,7 @@ def makeHardwareInfo():
 
     for word in FORBIDDEN_WORDS:
         hardwareInfo = replace(hardwareInfo, re.escape(word), '')
+    hardwareInfo = replace(hardwareInfo, r'\d+th', '')
     hardwareInfo = replace(hardwareInfo, r'\s+', ' ').strip()
 
     return hardwareInfo
