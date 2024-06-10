@@ -24,6 +24,7 @@ def makeHardwareInfo():
     for word in FORBIDDEN_WORDS:
         hardwareInfo = replace(hardwareInfo, re.escape(word), '')
     hardwareInfo = replace(hardwareInfo, r'\d+th', '')
+    hardwareInfo = replace(hardwareInfo, r'\d+\.\d+ghz', '')
     hardwareInfo = replace(hardwareInfo, r'\s+', ' ').strip()
 
     return hardwareInfo
