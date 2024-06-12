@@ -13,13 +13,19 @@ def makeHardwareInfo():
         res = compiled.sub(new, string)
         return str(res)
 
-    gpuProp = torch.cuda.get_device_properties(torch.cuda.device(0))
-    gpu = gpuProp.name
-    vram = f'{gpuProp.total_memory/1024/1024/1024:.0f}GB'
+    if torch.cuda.is_available():
+        gpuProp = torch.cuda.get_device_properties(torch.cuda.device(0))
+        vram = f'{gpuProp.total_memory/1024/1024/1024:.0f}GB'
+        gpu = gpuProp.name
+    else:
+        gpu = None
     cpu = cpuinfo.get_cpu_info()['brand_raw']
     ram = f'{psutil.virtual_memory().total/1024/1024/1024:.0f}GB RAM'
 
-    hardwareInfo = f'{gpu} {vram}, {cpu}, {ram}'
+    hardwareInfo = ""
+    if gpu:
+        hardwareInfo += f'{gpu} {vram}, '
+    hardwareInfo += f'{cpu}, {ram}'
 
     for word in FORBIDDEN_WORDS:
         hardwareInfo = replace(hardwareInfo, re.escape(word), '')
