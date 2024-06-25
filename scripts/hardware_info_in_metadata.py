@@ -1,7 +1,7 @@
 import gradio as gr
 import torch, cpuinfo, re, psutil, time
 from modules.processing import StableDiffusionProcessing, Processed
-from modules import errors, scripts, script_callbacks
+from modules import errors, scripts, script_callbacks, scripts_postprocessing
 
 
 def makeHardwareInfo():
@@ -94,3 +94,32 @@ class Script(scripts.Script):
         self.generated += 1
         p.extra_generation_params["Hardware Info"] = HARDWARE_INFO
         p.extra_generation_params["Time taken"] = self.getElapsedTime(p)
+
+
+
+
+class ScriptPostprocessing(scripts_postprocessing.ScriptPostprocessing):
+    name = "Hardware Info in metadata"
+    order = 99999999
+
+    def __init__(self):
+        self.start = None
+
+    def ui(self):
+        return {}
+
+    def process_firstpass(self, pp: scripts_postprocessing.PostprocessedImage, **args):
+        self.start = time.perf_counter()
+
+    def getElapsedTime(self):
+        elapsed = time.perf_counter() - self.start
+        elapsed_m = int(elapsed // 60)
+        elapsed_s = elapsed % 60
+        elapsed_text = f"{elapsed_s:.1f} sec."
+        if elapsed_m > 0:
+            elapsed_text = f"{elapsed_m} min. " + elapsed_text
+        return elapsed_text
+
+    def process(self, pp: scripts_postprocessing.PostprocessedImage, **args):
+        pp.info["Hardware Info"] = HARDWARE_INFO
+        pp.info["Time taken"] = self.getElapsedTime()
