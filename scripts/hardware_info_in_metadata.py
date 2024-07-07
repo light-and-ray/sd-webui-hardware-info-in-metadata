@@ -122,4 +122,5 @@ class ScriptPostprocessing(scripts_postprocessing.ScriptPostprocessing):
 
     def process(self, pp: scripts_postprocessing.PostprocessedImage, **args):
         pp.info["Hardware Info"] = HARDWARE_INFO
-        pp.info["Time taken"] = self.getElapsedTime()
+        if self.start is not None:
+            pp.info["Time taken"] = self.getElapsedTime()
