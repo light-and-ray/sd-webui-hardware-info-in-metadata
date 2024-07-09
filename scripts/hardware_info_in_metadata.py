@@ -1,7 +1,7 @@
 import gradio as gr
 import torch, cpuinfo, re, psutil, time
 from modules.processing import StableDiffusionProcessing
-from modules import errors, scripts, script_callbacks, scripts_postprocessing
+from modules import errors, scripts, script_callbacks, scripts_postprocessing, shared
 
 
 def makeHardwareInfo():
@@ -63,6 +63,25 @@ def replaceUsersGPU(infotext: str, params: dict):
 script_callbacks.on_infotext_pasted(replaceUsersGPU)
 
 
+
+
+def getRemark():
+    res = shared.opts.data.get("hardware_info_remark_in_metadata", "")
+    return res
+
+hardware_info_settings = {
+    'hardware_info_remark_in_metadata': shared.OptionInfo(
+                "",
+                "Write user's remark in metadata",
+                gr.Textbox,
+            ),
+}
+
+shared.options_templates.update(shared.options_section(('infotext', "Infotext", "ui"), hardware_info_settings))
+
+
+
+
 class Script(scripts.Script):
     def __init__(self):
         self.start = None
@@ -93,6 +112,8 @@ class Script(scripts.Script):
     def postprocess_image(self, p: StableDiffusionProcessing, pp: scripts.PostprocessImageArgs):
         self.generated += 1
         p.extra_generation_params["Hardware Info"] = HARDWARE_INFO
+        if getRemark():
+            p.extra_generation_params["Remark"] = getRemark()
         p.extra_generation_params["Time taken"] = self.getElapsedTime(p)
 
 
@@ -122,4 +143,6 @@ class ScriptPostprocessing(scripts_postprocessing.ScriptPostprocessing):
 
     def process(self, pp: scripts_postprocessing.PostprocessedImage, **args):
         pp.info["Hardware Info"] = HARDWARE_INFO
+        if getRemark():
+            pp.info["Remark"] = getRemark()
         pp.info["Time taken"] = self.getElapsedTime()
