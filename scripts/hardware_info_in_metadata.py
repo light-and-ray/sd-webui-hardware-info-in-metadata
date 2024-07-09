@@ -1,6 +1,6 @@
 import gradio as gr
 import torch, cpuinfo, re, psutil, time
-from modules.processing import StableDiffusionProcessing, Processed
+from modules.processing import StableDiffusionProcessing
 from modules import errors, scripts, script_callbacks, scripts_postprocessing
 
 
@@ -74,7 +74,7 @@ class Script(scripts.Script):
     def show(self, is_img2img):
         return scripts.AlwaysVisible
 
-    def before_process_batch(self, *args, **kwargs):
+    def before_process(self, *args):
         self.start = time.perf_counter()
         self.generated = 0
 
@@ -90,7 +90,7 @@ class Script(scripts.Script):
             self.start = time.perf_counter()
         return elapsed_text
 
-    def postprocess_image(self, p: StableDiffusionProcessing, processed: Processed):
+    def postprocess_image(self, p: StableDiffusionProcessing, pp: scripts.PostprocessImageArgs):
         self.generated += 1
         p.extra_generation_params["Hardware Info"] = HARDWARE_INFO
         p.extra_generation_params["Time taken"] = self.getElapsedTime(p)
@@ -122,5 +122,4 @@ class ScriptPostprocessing(scripts_postprocessing.ScriptPostprocessing):
 
     def process(self, pp: scripts_postprocessing.PostprocessedImage, **args):
         pp.info["Hardware Info"] = HARDWARE_INFO
-        if self.start is not None:
-            pp.info["Time taken"] = self.getElapsedTime()
+        pp.info["Time taken"] = self.getElapsedTime()
